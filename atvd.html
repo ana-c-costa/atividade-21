@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>carrinho</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+  
+  <title>Fale Conosco - MQTT</title>
+    <style>
+    body
+    {
+      background-color: #D0E3F8;
+      width: 100%; /*largura*/
+      weight: 100vh;
+      margin: 0px;
+      display: flex;
+      flex-direction: column; 
+    }
+    .cabecalho
+   {
+      background-color: #87C6D4;
+      width: 100%; /*largura*/
+      height: 110px; /*altura*/
+      font-size: 40px; /*tamanho da letra*/
+      font-family: 'Bungee Shade', cursive;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    .texto
+    {
+      width: 500px; /*largura*/
+      height: 80hv; /*altura*/
+      font-size: 40px; /*tamanho da letra*/
+      font-family: 'Bungee Shade', cursive;
+      padding-left: 25px;        
+    }
+    .texto2
+    {
+      width: 500px; /*largura*/
+      height: 80hv; /*altura*/
+      font-size: 40px; /*tamanho da letra*/
+    }
+    .mensagem
+    {
+      width: 120px; /*largura*/
+      height: 40px; /*altura*/
+      font-size: 20px; /*tamanho da letra*/
+      padding-left: 25px; 
+    }
+    .botao
+    {
+      width: 90px; /*largura*/
+      height: 20px; /*altura*/
+      font-size: 12px; /*tamanho da letra*/
+      justify-content: center;
+    }
+
+    </style>
+</head>
+<body>
+      <div class="cabecalho">
+      <div class="texto">SPRING SHOP</div>
+      <div class="text">FALE CONOSCO</div>
+    </div>
+    <br>
+    Mensagem: <input class="mensagem" type="text" id="mensagem"> 
+    <br>
+    <button class="botao" onclick="Enviar();">Enviar</button> 
+    <div class="resposta" id="resposta">  </div>
+</body>
+
+<script>
+
+  topico = "meu aplicativo/mensagem";  // Variável que ficará no servidor MQTT
+
+  // Conexão:
+  client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "");
+
+  // Funções executadas quando a conexão é perdida e quando uma mensagem chega:
+  client.onConnectionLost = ConexaoPerdida;
+  client.onMessageArrived = MensagemRecebida;
+
+  // Função chamada quando a conexão for realizada:
+  client.connect({onSuccess:Conectar});
+
+  // A função Conectar deve criar a variável (tópico) no computador remoto:
+  function Conectar() {
+    
+    client.subscribe(topico);  // Tópico (variável) criado no servidor MQTT
+    
+  }
+  
+  function ConexaoPerdida(responseObject) {
+    if (responseObject.errorCode !== 0) {
+      resposta.innerHTML += "Desconectado";
+    }
+  }
+
+  // Função executada quando a variável (tópico) no servidor receber uma mensagem:
+  function MensagemRecebida(message) {
+      resposta.innerHTML += "<br><br>" + message.payloadString;
+  }
+
+  function Enviar()
+  {
+    texto = mensagem.value;
+    texto= "SPRING SHOP <br>"+ texto;
+
+    message = new Paho.MQTT.Message(texto);
+    message.destinationName = topico;
+    client.send(message);
+  }
+
+</script>
+
+</html>
